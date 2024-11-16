@@ -7,6 +7,7 @@ import domain
 struct ComposeView: UIViewControllerRepresentable {
 
     private let presenter: MainPresenter = get()
+//    private let settings: Settings = get()
 
     func makeUIViewController(context: Context) -> UIViewController {
         return LifecycleAwareComposeViewController(presenter: presenter)
