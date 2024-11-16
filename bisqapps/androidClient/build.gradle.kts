@@ -37,6 +37,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.koin.core)
             implementation(libs.koin.android)
+            implementation(libs.multiplatform.settings)
         }
         androidUnitTest.dependencies {
             implementation(libs.kotlin.test)

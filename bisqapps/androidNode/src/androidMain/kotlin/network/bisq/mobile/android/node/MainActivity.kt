@@ -1,20 +1,30 @@
 package network.bisq.mobile.android.node
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.russhwolf.settings.Settings
+
 import network.bisq.mobile.presentation.MainPresenter
 import network.bisq.mobile.presentation.ui.App
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val presenter : MainPresenter by inject()
+    private val settings: Settings by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         presenter.attachView(this)
+
+        settings.putInt("key", 3)
+        Log.i("Saved", "Persisted value")
+
+        val a: Int = settings.getInt("key", defaultValue = -1)
+        Log.i("value", a.toString())
 
         setContent {
             App()

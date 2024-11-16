@@ -26,6 +26,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.multiplatform.settings)
         }
         val androidMain by getting {
             androidMain.dependencies {
