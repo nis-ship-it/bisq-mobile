@@ -36,6 +36,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines)
             implementation(libs.logging.kermit)
+            implementation(libs.multiplatform.settings)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
