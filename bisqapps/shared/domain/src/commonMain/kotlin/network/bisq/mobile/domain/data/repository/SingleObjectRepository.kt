@@ -13,7 +13,7 @@ import network.bisq.mobile.domain.data.persistance.PersistenceSource
  * TODO: create a map-based multi object repository when needed (might need to leverage some kind of id generation on the base model)
  */
 abstract class SingleObjectRepository<out T : BaseModel>(
-    private val persistenceSource: PersistenceSource<T>? = null
+    private val persistenceSource: PersistenceSource? = null
 ) : Repository<T> {
 
     private val logger = Logger.withTag(SingleObjectRepository::class.simpleName ?: "SingleObjectRepository")
@@ -49,7 +49,7 @@ abstract class SingleObjectRepository<out T : BaseModel>(
     }
 
     override suspend fun fetch(): T? {
-        return _data.value ?: persistenceSource?.get().also { _data.value = it }
+        return _data.value ?: persistenceSource?.get<T>().also { _data.value = it }
     }
 
     override suspend fun clear() {

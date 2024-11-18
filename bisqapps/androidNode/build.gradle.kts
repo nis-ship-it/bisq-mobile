@@ -120,6 +120,8 @@ dependencies {
     implementation(project(":shared:domain"))
     debugImplementation(compose.uiTooling)
 
+    implementation(libs.koin.core)
+
     // bisq2 core dependencies
     implementation(libs.androidx.multidex)
     implementation(libs.google.guava)
