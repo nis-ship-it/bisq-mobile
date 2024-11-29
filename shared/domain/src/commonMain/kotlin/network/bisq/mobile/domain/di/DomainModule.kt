@@ -10,6 +10,8 @@ import network.bisq.mobile.domain.data.repository.BisqStatsRepository
 import network.bisq.mobile.domain.data.repository.BtcPriceRepository
 import network.bisq.mobile.domain.data.repository.GreetingRepository
 import network.bisq.mobile.domain.data.repository.SettingsRepository
+import network.bisq.mobile.domain.service.controller.NotificationServiceController
+import network.bisq.mobile.domain.service.controller.ServiceController
 import org.koin.dsl.module
 
 expect fun provideSettings(): Settings
