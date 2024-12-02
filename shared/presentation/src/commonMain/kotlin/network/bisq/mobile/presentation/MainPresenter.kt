@@ -1,10 +1,13 @@
 package network.bisq.mobile.presentation
 
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import network.bisq.mobile.android.node.BuildNodeConfig
 import network.bisq.mobile.client.shared.BuildConfig
+import network.bisq.mobile.domain.data.BackgroundDispatcher
 import network.bisq.mobile.domain.getPlatform
 import network.bisq.mobile.domain.service.controller.NotificationServiceController
 import network.bisq.mobile.presentation.ui.AppPresenter
@@ -41,9 +44,8 @@ open class MainPresenter(private val notificationServiceController: Notification
         log.i { "Android Client Version: ${BuildConfig.IOS_APP_VERSION}" }
         log.i { "Android Node Version: ${BuildNodeConfig.APP_VERSION}" }
         notificationServiceController.startService()
-        //        CoroutineScope(BackgroundDispatcher).launch {
-        //            greetingRepository.create(Greeting())
-        //        }
+//        CoroutineScope(BackgroundDispatcher).launch {
+//        }
     }
 
     // Toggle action
