@@ -1,7 +1,9 @@
 package network.bisq.mobile.presentation
 
+import androidx.annotation.CallSuper
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -11,6 +13,7 @@ import network.bisq.mobile.domain.data.BackgroundDispatcher
 import network.bisq.mobile.domain.getPlatform
 import network.bisq.mobile.domain.service.controller.NotificationServiceController
 import network.bisq.mobile.presentation.ui.AppPresenter
+import kotlin.random.Random
 
 
 /**
@@ -43,9 +46,22 @@ open class MainPresenter(private val notificationServiceController: Notification
         log.i { "iOS Client Version: ${BuildConfig.IOS_APP_VERSION}" }
         log.i { "Android Client Version: ${BuildConfig.IOS_APP_VERSION}" }
         log.i { "Android Node Version: ${BuildNodeConfig.APP_VERSION}" }
+    }
+
+    @CallSuper
+    override fun onViewAttached() {
+        super.onViewAttached()
         notificationServiceController.startService()
-//        CoroutineScope(BackgroundDispatcher).launch {
-//        }
+        // sample code for push notifications sends a random message every 10 secs
+        CoroutineScope(BackgroundDispatcher).launch {
+            while (notificationServiceController.isServiceRunning()) {
+                val randomTitle = "Title ${Random.nextInt(1, 100)}"
+                val randomMessage = "Message ${Random.nextInt(1, 100)}"
+                notificationServiceController.pushNotification(randomTitle, randomMessage)
+                println("Pushed: $randomTitle - $randomMessage")
+                delay(10000) // 10 seconds
+            }
+        }
     }
 
     // Toggle action
