@@ -9,13 +9,14 @@ import platform.BackgroundTasks.*
 import platform.Foundation.NSUUID
 import platform.Foundation.setValue
 import platform.UserNotifications.*
+import platform.darwin.NSObject
 
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class NotificationServiceController : ServiceController, Logging {
 
     companion object {
-        const val BACKGROUND_TASK_ID = "network.bisq.mobile.ios.backgroundtask"
+        const val BACKGROUND_TASK_ID = "network.bisq.mobile.iosUC4273Y485.backgroundTask"
     }
 
     private var isRunning = false
@@ -23,16 +24,34 @@ actual class NotificationServiceController : ServiceController, Logging {
 
     private val logScope = CoroutineScope(Dispatchers.Main)
 
-//      TODO foreground notifications?
-//        UNUserNotificationCenter.currentNotificationCenter().delegate = object : UNUserNotificationCenterDelegateProtocol {
-//            override fun userNotificationCenter(
-//                center: UNUserNotificationCenter,
-//                willPresentNotification: UNNotification,
-//                withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
-//            ) {
-//                withCompletionHandler(UNNotificationPresentationOptionsAlert or UNNotificationPresentationOptionsSound)
-//            }
-//        }
+    init {
+        val delegate = object : NSObject(), UNUserNotificationCenterDelegateProtocol {
+            override fun userNotificationCenter(
+                center: UNUserNotificationCenter,
+                willPresentNotification: UNNotification,
+                withCompletionHandler: (UNNotificationPresentationOptions) -> Unit
+            ) {
+                // Display alert, sound, or badge when the app is in the foreground
+                withCompletionHandler(
+                    UNNotificationPresentationOptionAlert or UNNotificationPresentationOptionSound or UNNotificationPresentationOptionBadge
+                )
+            }
+
+            // Handle user actions on the notification
+            override fun userNotificationCenter(
+                center: UNUserNotificationCenter,
+                didReceiveNotificationResponse: UNNotificationResponse,
+                withCompletionHandler: () -> Unit
+            ) {
+                // Handle the response when the user taps the notification
+                withCompletionHandler()
+            }
+
+        }
+
+        UNUserNotificationCenter.currentNotificationCenter().delegate = delegate
+    }
+
 
     actual override fun startService() {
         if (isRunning) {
@@ -48,20 +67,20 @@ actual class NotificationServiceController : ServiceController, Logging {
             UNAuthorizationOptionAlert or UNAuthorizationOptionSound or UNAuthorizationOptionBadge
         ) { granted, error ->
             if (granted) {
-                logDebug("Notification permission granted.")
+                println("Notification permission granted.")
                 // Once permission is granted, you can start scheduling background tasks
-                scheduleBackgroundTask()
-                logDebug("Background service started")
+//                scheduleBackgroundTask()
+                println("Background service started")
                 isRunning = true
             } else {
-                logDebug("Notification permission denied: ${error?.localizedDescription}")
+                println("Notification permission denied: ${error?.localizedDescription}")
             }
         }
     }
 
     actual override fun stopService() {
         BGTaskScheduler.sharedScheduler.cancelAllTaskRequests()
-        logDebug("Background service stopped")
+        println("Background service stopped")
         isRunning = false
     }
 
@@ -69,13 +88,17 @@ actual class NotificationServiceController : ServiceController, Logging {
         val content = UNMutableNotificationContent().apply {
             setValue(title, forKey = "title")
             setValue(message, forKey = "body")
+            setSound(UNNotificationSound.defaultSound())
         }
+
+        val trigger = UNTimeIntervalNotificationTrigger.triggerWithTimeInterval(5.0, repeats = false)
 
         val request = UNNotificationRequest.requestWithIdentifier(
             NSUUID().UUIDString,  // Generates a unique identifier
             content,
-            null  // Trigger can be set to null for immediate delivery
+            trigger  // Trigger can be set to null for immediate delivery
         )
+        println("getting called every 10 sec")
         UNUserNotificationCenter.currentNotificationCenter().addNotificationRequest(request) { error ->
             if (error != null) {
                 println("Error adding notification request: ${error.localizedDescription}")
@@ -92,8 +115,10 @@ actual class NotificationServiceController : ServiceController, Logging {
 
     private fun handleBackgroundTask(task: BGProcessingTask) {
         logDebug("Executing background task")
+        pushNotification("Background Notification", "This notification was triggered in the background")
+
         task.setTaskCompletedWithSuccess(true)
-        scheduleBackgroundTask() // Reschedule if needed
+//        scheduleBackgroundTask() // Reschedule if needed
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -102,7 +127,7 @@ actual class NotificationServiceController : ServiceController, Logging {
             requiresNetworkConnectivity = true
         }
         BGTaskScheduler.sharedScheduler.submitTaskRequest(request, null)
-        logDebug("Background task scheduled")
+        println("Background task scheduled")
     }
 
     private fun logDebug(message: String) {
@@ -113,16 +138,19 @@ actual class NotificationServiceController : ServiceController, Logging {
 
     private fun registerBackgroundTask() {
         if (isBackgroundTaskRegistered) {
-            logDebug("Background task is already registered.")
+            println("Background task is already registered.")
             return
         }
 
         // Register for background task handler
-        BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(identifier = BACKGROUND_TASK_ID, usingQueue = null) { task ->
+        BGTaskScheduler.sharedScheduler.registerForTaskWithIdentifier(
+            identifier = BACKGROUND_TASK_ID,
+            usingQueue = null
+        ) { task ->
             handleBackgroundTask(task as BGProcessingTask)
         }
 
         isBackgroundTaskRegistered = true
-        logDebug("Background task handler registered.")
+        println("Background task handler registered.")
     }
 }
