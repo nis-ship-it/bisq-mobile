@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import network.bisq.mobile.utils.Logging
 import platform.BackgroundTasks.*
+import platform.Foundation.NSDate
 import platform.Foundation.NSUUID
 import platform.Foundation.setValue
 import platform.UserNotifications.*
@@ -16,7 +17,7 @@ import platform.darwin.NSObject
 actual class NotificationServiceController : ServiceController, Logging {
 
     companion object {
-        const val BACKGROUND_TASK_ID = "network.bisq.mobile.iosUC4273Y485.backgroundTask"
+        const val BACKGROUND_TASK_ID = "network.bisq.mobile.iosUC4273Y485"
     }
 
     private var isRunning = false
@@ -69,7 +70,7 @@ actual class NotificationServiceController : ServiceController, Logging {
             if (granted) {
                 println("Notification permission granted.")
                 // Once permission is granted, you can start scheduling background tasks
-//                scheduleBackgroundTask()
+                scheduleBackgroundTask()
                 println("Background service started")
                 isRunning = true
             } else {
@@ -118,13 +119,14 @@ actual class NotificationServiceController : ServiceController, Logging {
         pushNotification("Background Notification", "This notification was triggered in the background")
 
         task.setTaskCompletedWithSuccess(true)
-//        scheduleBackgroundTask() // Reschedule if needed
+        scheduleBackgroundTask() // Reschedule if needed
     }
 
     @OptIn(ExperimentalForeignApi::class)
     private fun scheduleBackgroundTask() {
         val request = BGProcessingTaskRequest(BACKGROUND_TASK_ID).apply {
             requiresNetworkConnectivity = true
+            earliestBeginDate = NSDate(timeIntervalSinceReferenceDate = 10.0)
         }
         BGTaskScheduler.sharedScheduler.submitTaskRequest(request, null)
         println("Background task scheduled")
